@@ -1,5 +1,6 @@
 #include "hf-cache.h"
 
+#include "arg.h"
 #include "build-info.h"
 #include "common.h"
 #include "log.h"
@@ -438,7 +439,9 @@ hf_files get_cached_files(const std::string & repo_id) {
 }
 
 std::string finalize_file(const hf_file & file) {
-    static std::atomic<bool> symlinks_disabled{false};
+    static std::atomic<bool> symlinks_disabled = []() {
+        return common_arg_utils::is_truthy(common_get_env("HF_HUB_DISABLE_SYMLINKS"));
+    }();
 
     std::error_code ec;
     fs::path local_path = fs::u8path(file.local_path);
